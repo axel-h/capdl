@@ -2101,18 +2101,21 @@ static void init_system(CDL_Model *spec)
 }
 
 #ifdef CONFIG_DEBUG_BUILD
-/* We need to give malloc enough memory for musllibc to allocate memory
- * for stdin, stdout, and stderr. */
-extern char *morecore_area;
-extern size_t morecore_size;
-#define DEBUG_LIBC_MORECORE_SIZE 4096
-static char debug_libc_morecore_area[DEBUG_LIBC_MORECORE_SIZE];
 
 static void CONSTRUCTOR(MUSLCSYS_WITH_VSYSCALL_PRIORITY) init_bootinfo(void)
 {
+    /* We need to give malloc enough memory for musllibc to allocate memory
+    * for stdin, stdout, and stderr. */
+    #define DEBUG_LIBC_MORECORE_SIZE 4096
+
+    static char debug_libc_morecore_area[DEBUG_LIBC_MORECORE_SIZE];
+
     /* Init memory area for musl. */
+    extern char *morecore_area;
     morecore_area = debug_libc_morecore_area;
-    morecore_size = DEBUG_LIBC_MORECORE_SIZE;
+
+    extern size_t morecore_size;
+    morecore_size = sizeof(debug_libc_morecore_area);
 
     /* Allow us to print via seL4_Debug_PutChar. */
     platsupport_serial_setup_bootinfo_failsafe();
