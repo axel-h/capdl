@@ -1692,7 +1692,7 @@ static void init_vspace(CDL_Model *spec)
     ZF_LOGD("================================");
     for (CDL_ObjID obj_id = 0; obj_id < spec->num; obj_id++) {
         if (spec->objects[obj_id].type == CDL_TOP_LEVEL_PD) {
-            ZF_LOGD(" Initialising top level %s...", CDL_Obj_Name(&spec->objects[obj_id]));
+            ZF_LOGD(" Initialising top level '%s'...", CDL_Obj_Name(&spec->objects[obj_id]));
 #if (CDL_PT_NUM_LEVELS == 4)
             init_level_0(spec, obj_id, 0, obj_id);
 #elif (CDL_PT_NUM_LEVELS == 3)
@@ -1710,7 +1710,7 @@ static void init_vspace(CDL_Model *spec)
 
     for (CDL_ObjID obj_id = 0; obj_id < spec->num; obj_id++) {
         if (spec->objects[obj_id].type == CDL_PD) {
-            ZF_LOGD(" Initialising page directory %s...", CDL_Obj_Name(&spec->objects[obj_id]));
+            ZF_LOGD(" Initialising page directory '%s'...", CDL_Obj_Name(&spec->objects[obj_id]));
             map_page_directory(spec, obj_id);
         }
     }
@@ -1719,7 +1719,7 @@ static void init_vspace(CDL_Model *spec)
     ZF_LOGD("Initialising page tables...");
     for (CDL_ObjID obj_id = 0; obj_id < spec->num; obj_id++) {
         if (spec->objects[obj_id].type == CDL_PD) {
-            ZF_LOGD(" Initialising page tables in %s...", CDL_Obj_Name(&spec->objects[obj_id]));
+            ZF_LOGD(" Initialising page tables in '%s'...", CDL_Obj_Name(&spec->objects[obj_id]));
             map_page_directory_page_tables(spec, obj_id);
         }
     }
@@ -1867,15 +1867,16 @@ static void init_cnode_slot(CDL_Model *spec, init_cnode_mode mode, CDL_ObjID cno
 
 static void init_cnode(CDL_Model *spec, init_cnode_mode mode, CDL_ObjID cnode)
 {
+    ZF_LOGD("  Populating cnode...");
     CDL_Object *cdl_cnode = get_spec_object(spec, cnode);
     for (unsigned int slot_index = 0; slot_index < CDL_Obj_NumSlots(cdl_cnode); slot_index++) {
         if (CDL_Obj_GetSlot(cdl_cnode, slot_index)->cap.type == CDL_IRQHandlerCap) {
             CDL_IRQ UNUSED irq = CDL_Obj_GetSlot(cdl_cnode, slot_index)->cap.irq;
-            ZF_LOGD("  Populating slot %d with cap to IRQ %d, name %s...",
+            ZF_LOGD("    slot %d: IRQ %d, name '%s'",
                     CDL_Obj_GetSlot(cdl_cnode, slot_index)->slot, irq,
                     CDL_Obj_Name(&spec->objects[spec->irqs[irq]]));
         } else {
-            ZF_LOGD("  Populating slot %d with cap to %s...",
+            ZF_LOGD("    slot %d: '%s'",
                     CDL_Obj_GetSlot(cdl_cnode, slot_index)->slot,
                     CDL_Obj_Name(&spec->objects[CDL_Obj_GetSlot(cdl_cnode, slot_index)->cap.obj_id]));
         }
@@ -1888,7 +1889,7 @@ static void init_cspace(CDL_Model *spec)
     ZF_LOGD("Copying Caps...");
     for (CDL_ObjID obj_id = 0; obj_id < spec->num; obj_id++) {
         if (spec->objects[obj_id].type == CDL_CNode) {
-            ZF_LOGD(" Copying into %s...", CDL_Obj_Name(&spec->objects[obj_id]));
+            ZF_LOGD(" Copying into '%s'...", CDL_Obj_Name(&spec->objects[obj_id]));
             init_cnode(spec, COPY, obj_id);
         }
     }
@@ -1896,7 +1897,7 @@ static void init_cspace(CDL_Model *spec)
     ZF_LOGD("Moving Caps...");
     for (CDL_ObjID obj_id = 0; obj_id < spec->num; obj_id++) {
         if (spec->objects[obj_id].type == CDL_CNode) {
-            ZF_LOGD(" Moving into %s...", CDL_Obj_Name(&spec->objects[obj_id]));
+            ZF_LOGD(" Moving into '%s'...", CDL_Obj_Name(&spec->objects[obj_id]));
             init_cnode(spec, MOVE, obj_id);
         }
     }
@@ -1907,7 +1908,7 @@ static void start_threads(CDL_Model *spec)
     ZF_LOGD("Starting threads...");
     for (CDL_ObjID obj_id = 0; obj_id < spec->num; obj_id++) {
         if (spec->objects[obj_id].type == CDL_TCB && spec->objects[obj_id].tcb_extra.resume) {
-            ZF_LOGD(" Starting %s...", CDL_Obj_Name(&spec->objects[obj_id]));
+            ZF_LOGD(" Starting '%s'...", CDL_Obj_Name(&spec->objects[obj_id]));
             seL4_CPtr tcb = orig_caps(obj_id);
             int error = seL4_TCB_Resume(tcb);
             ZF_LOGF_IFERR(error, "");
