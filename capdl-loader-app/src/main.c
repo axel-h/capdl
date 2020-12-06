@@ -1850,11 +1850,11 @@ static void init_cnode(CDL_Model *spec, init_cnode_mode mode, CDL_ObjID cnode)
     for (unsigned int slot_index = 0; slot_index < CDL_Obj_NumSlots(cdl_cnode); slot_index++) {
         if (CDL_Obj_GetSlot(cdl_cnode, slot_index)->cap.type == CDL_IRQHandlerCap) {
             CDL_IRQ UNUSED irq = CDL_Obj_GetSlot(cdl_cnode, slot_index)->cap.irq;
-            ZF_LOGD("  Populating slot %d with cap to IRQ %d, name %s...",
+            ZF_LOGD("  slot %d: IRQ %d, name %s",
                     CDL_Obj_GetSlot(cdl_cnode, slot_index)->slot, irq,
                     CDL_Obj_Name(&spec->objects[spec->irqs[irq]]));
         } else {
-            ZF_LOGD("  Populating slot %d with cap to %s...",
+            ZF_LOGD("  slot %d: %s",
                     CDL_Obj_GetSlot(cdl_cnode, slot_index)->slot,
                     CDL_Obj_Name(&spec->objects[CDL_Obj_GetSlot(cdl_cnode, slot_index)->cap.obj_id]));
         }
