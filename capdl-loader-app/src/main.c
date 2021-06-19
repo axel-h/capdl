@@ -1592,12 +1592,8 @@ static void init_level_0(CDL_Model *spec, CDL_ObjID level_0_obj, uintptr_t level
         CDL_Cap *level_1_cap = CDL_CapSlot_Cap(slot);
         CDL_ObjID level_1_obj = CDL_Cap_ObjID(level_1_cap);
         seL4_ARCH_VMAttributes vm_attribs = CDL_Cap_VMAttributes(level_1_cap);
-#ifdef CDL_PT_LEVEL_1_MAP
         CDL_PT_LEVEL_1_MAP(orig_caps(level_1_obj), orig_caps(level_0_obj), base, vm_attribs);
         init_level_1(spec, level_0_obj, base, level_1_obj);
-#else
-        ZF_LOGF("CDL_PT_LEVEL_1_MAP is not defined");
-#endif
     }
 }
 #endif
