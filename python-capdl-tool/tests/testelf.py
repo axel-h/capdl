@@ -17,7 +17,8 @@ from tests import CapdlTestCase
 class TestElf(CapdlTestCase):
 
     def test_elf(self):
-        elf = ELF('resources/arm-hello.bin')
+        elf = ELF('resources/main.instance.bin')
+        print("elf.get_arch: ", elf.get_arch())
         assert elf.get_arch() in [40, 'EM_ARM', 'ARM']
         elf.get_spec()
 
