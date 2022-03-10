@@ -238,6 +238,26 @@ class RISCV32Arch(Arch):
     def ipc_buffer_size(self):
         return 512
 
+class ACME64Arch(Arch):
+    def capdl_name(self):
+        return "acme"
+
+    def levels(self):
+        return [
+            Level(2 ** 39, [ObjectType.seL4_HugePageObject],
+                  ObjectType.seL4_PageTableObject, PageTable, "pt"),
+            Level(2 ** 30, [ObjectType.seL4_LargePageObject],
+                  ObjectType.seL4_PageTableObject, PageTable, "pt"),
+            Level(2 ** 21, [ObjectType.seL4_SmallPageObject],
+                  ObjectType.seL4_PageTableObject, PageTable, "pt"),
+        ]
+
+    def word_size_bits(self):
+        return 64
+
+    def ipc_buffer_size(self):
+        return 1024
+
 
 # Support for ARMv6 has been removed from seL4 in early 2022. However, support
 # for "arm11" is kept here, because this name is used in the CapDL specification
@@ -253,6 +273,7 @@ CAPDL_SUPPORTED_ARCHITECTURES = {
     'x86_64':  [lambda: X64Arch(),           []],
     'riscv32': [lambda: RISCV32Arch(),       []],
     'riscv64': [lambda: RISCV64Arch(),       []],
+    'acme64':  [lambda: ACME64Arch(),        []],
 }
 
 
