@@ -16,6 +16,12 @@
 #include <stdlib.h>
 #include <utils/util.h>
 
+#ifdef CONFIG_KERNEL_MCS
+#define IF_CONFIG_KERNEL_MCS(t, f)   t
+#else
+#define IF_CONFIG_KERNEL_MCS(t, f)   f
+#endif
+
 #define CDL_VM_CacheEnabled         seL4_ARCH_Default_VMAttributes
 #define CDL_VM_CacheDisabled        seL4_ARCH_Uncached_VMAttributes
 
@@ -197,13 +203,8 @@ typedef enum {
     CDL_IOPorts       = seL4_ObjectTypeCount + 3,
     CDL_IODevice      = seL4_ObjectTypeCount + 4,
 #endif
-#ifdef CONFIG_KERNEL_MCS
-    CDL_SchedContext  = seL4_SchedContextObject,
-    CDL_RTReply  = seL4_ReplyObject,
-#else
-    CDL_SchedContext  = seL4_ObjectTypeCount + 5,
-    CDL_RTReply  = seL4_ObjectTypeCount + 6,
-#endif
+    CDL_SchedContext  = IF_CONFIG_KERNEL_MCS(seL4_SchedContextObject, seL4_ObjectTypeCount + 5),
+    CDL_RTReply       = IF_CONFIG_KERNEL_MCS(seL4_ReplyObject, seL4_ObjectTypeCount + 6),
 #if defined(CONFIG_ARCH_X86)
     CDL_IOAPICInterrupt = seL4_ObjectTypeCount + 7,
     CDL_MSIInterrupt = seL4_ObjectTypeCount + 8,
