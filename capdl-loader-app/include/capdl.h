@@ -230,10 +230,10 @@ typedef enum {
 #ifdef CONFIG_ARCH_AARCH64
 #if defined(CONFIG_ARM_HYPERVISOR_SUPPORT) && defined(CONFIG_ARM_PA_SIZE_BITS_40)
 #define CDL_TOP_LEVEL_PD         CDL_PUD
-#define CDL_PT_NUM_LEVELS 3
+#define CDL_PT_NUM_LEVELS        3
 #else
 #define CDL_TOP_LEVEL_PD         CDL_PGD
-#define CDL_PT_NUM_LEVELS 4
+#define CDL_PT_NUM_LEVELS        4
 #define CDL_PT_LEVEL_1_MAP       seL4_ARM_PageUpperDirectory_Map
 #endif
 #define CDL_PT_LEVEL_1_IndexBits seL4_PUDIndexBits
@@ -249,9 +249,9 @@ typedef enum {
 #define CDL_PT_LEVEL_2_IndexBits seL4_PageDirIndexBits
 #define CDL_PT_LEVEL_3_MAP       seL4_X86_PageTable_Map
 #define CDL_PT_LEVEL_3_IndexBits seL4_PageTableIndexBits
-#define CDL_PT_NUM_LEVELS 4
+#define CDL_PT_NUM_LEVELS        4
 #elif CONFIG_ARCH_RISCV
-#define CDL_TOP_LEVEL_PD CDL_PT_ROOT_ALIAS
+#define CDL_TOP_LEVEL_PD         CDL_PT_ROOT_ALIAS
 #define CDL_PT_LEVEL_0_MAP       seL4_RISCV_PageTable_Map
 #define CDL_PT_LEVEL_0_IndexBits seL4_PageTableIndexBits
 #define CDL_PT_LEVEL_1_MAP       seL4_RISCV_PageTable_Map
@@ -260,10 +260,10 @@ typedef enum {
 #define CDL_PT_LEVEL_2_IndexBits seL4_PageTableIndexBits
 #define CDL_PT_LEVEL_3_MAP       seL4_RISCV_PageTable_Map
 #define CDL_PT_LEVEL_3_IndexBits seL4_PageTableIndexBits
-#define CDL_PT_NUM_LEVELS CONFIG_PT_LEVELS
+#define CDL_PT_NUM_LEVELS        CONFIG_PT_LEVELS
 #else
 #define CDL_TOP_LEVEL_PD         CDL_PD
-#define CDL_PT_NUM_LEVELS 2
+#define CDL_PT_NUM_LEVELS        2
 #endif
 
 typedef struct {
