@@ -179,9 +179,6 @@ typedef enum {
 #ifdef CONFIG_ARM_HYPERVISOR_SUPPORT
     CDL_VCPU          = seL4_ARM_VCPUObject,
 #endif
-#ifdef CONFIG_VTX
-    CDL_VCPU          = seL4_X86_VCPUObject,
-#endif
 #elif defined(CONFIG_ARCH_X86)
     CDL_PT            = seL4_X86_PageTableObject,
     CDL_PD            = seL4_X86_PageDirectoryObject,
@@ -190,6 +187,9 @@ typedef enum {
     CDL_PML4          = seL4_X64_PML4Object,
     CDL_PDPT          = seL4_X86_PDPTObject,
 #endif /* CONFIG_ARCH_X86_64 */
+#ifdef CONFIG_VTX
+    CDL_VCPU          = seL4_X86_VCPUObject,
+#endif
 #endif /* CONFIG_ARCH_X86 */
     CDL_ASIDPool      = seL4_ObjectTypeCount + 1,
     CDL_Interrupt     = seL4_ObjectTypeCount + 2,
