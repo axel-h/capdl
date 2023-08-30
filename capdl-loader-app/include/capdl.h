@@ -175,7 +175,7 @@ typedef enum {
 #if !(defined(CONFIG_ARM_HYPERVISOR_SUPPORT) && defined (CONFIG_ARM_PA_SIZE_BITS_40))
     CDL_PGD           = seL4_ARM_PageGlobalDirectoryObject,
 #endif
-#endif
+#endif /* CONFIG_ARCH_AARCH64 */
 #ifdef CONFIG_ARM_HYPERVISOR_SUPPORT
     CDL_VCPU          = seL4_ARM_VCPUObject,
 #endif
@@ -189,8 +189,8 @@ typedef enum {
 #ifdef CONFIG_ARCH_X86_64
     CDL_PML4          = seL4_X64_PML4Object,
     CDL_PDPT          = seL4_X86_PDPTObject,
-#endif
-#endif
+#endif /* CONFIG_ARCH_X86_64 */
+#endif /* CONFIG_ARCH_X86 */
     CDL_ASIDPool      = seL4_ObjectTypeCount + 1,
     CDL_Interrupt     = seL4_ObjectTypeCount + 2,
 #if defined(CONFIG_ARCH_X86)
@@ -216,7 +216,7 @@ typedef enum {
 #ifdef CONFIG_ALLOW_SMC_CALLS
     CDL_SMC = seL4_ObjectTypeCount + 14,
 #endif
-#endif
+#endif /* CONFIG_ARCH_ARM */
 #ifdef CONFIG_ARCH_RISCV
     CDL_Frame = seL4_RISCV_4K_Page,
     CDL_PT = seL4_RISCV_PageTableObject,
