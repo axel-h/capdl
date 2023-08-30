@@ -172,23 +172,25 @@ typedef enum {
     CDL_TCB           = seL4_TCBObject,
     CDL_CNode         = seL4_CapTableObject,
     CDL_Untyped       = seL4_UntypedObject,
+
 #if defined(CONFIG_ARCH_ARM)
+    CDL_Frame         = seL4_ARM_SmallPageObject,
     CDL_PT            = seL4_ARM_PageTableObject,
     CDL_PD            = seL4_ARM_PageDirectoryObject,
-    CDL_Frame         = seL4_ARM_SmallPageObject,
 #ifdef CONFIG_ARCH_AARCH64
     CDL_PUD           = seL4_ARM_PageUpperDirectoryObject,
-#if !(defined(CONFIG_ARM_HYPERVISOR_SUPPORT) && defined (CONFIG_ARM_PA_SIZE_BITS_40))
+#if !(defined(CONFIG_ARM_HYPERVISOR_SUPPORT) && defined(CONFIG_ARM_PA_SIZE_BITS_40))
     CDL_PGD           = seL4_ARM_PageGlobalDirectoryObject,
 #endif
 #endif /* CONFIG_ARCH_AARCH64 */
 #ifdef CONFIG_ARM_HYPERVISOR_SUPPORT
     CDL_VCPU          = seL4_ARM_VCPUObject,
 #endif
+
 #elif defined(CONFIG_ARCH_X86)
+    CDL_Frame         = seL4_X86_4K,
     CDL_PT            = seL4_X86_PageTableObject,
     CDL_PD            = seL4_X86_PageDirectoryObject,
-    CDL_Frame         = seL4_X86_4K,
 #ifdef CONFIG_ARCH_X86_64
     CDL_PML4          = seL4_X64_PML4Object,
     CDL_PDPT          = seL4_X86_PDPTObject,
@@ -196,39 +198,62 @@ typedef enum {
 #ifdef CONFIG_VTX
     CDL_VCPU          = seL4_X86_VCPUObject,
 #endif
-#endif /* CONFIG_ARCH_X86 */
+
+#elif defined(CONFIG_ARCH_RISCV)
+    CDL_Frame         = seL4_RISCV_4K_Page,
+    CDL_PT            = seL4_RISCV_PageTableObject,
+
+#else
+#error "unknown Architecture"
+#endif
+
     CDL_ASIDPool      = seL4_ObjectTypeCount + 1,
     CDL_Interrupt     = seL4_ObjectTypeCount + 2,
-#if defined(CONFIG_ARCH_X86)
+
+#ifdef CONFIG_ARCH_X86
     CDL_IOPorts       = seL4_ObjectTypeCount + 3,
     CDL_IODevice      = seL4_ObjectTypeCount + 4,
 #endif
+
     CDL_SchedContext  = IF_CONFIG_KERNEL_MCS(seL4_SchedContextObject, seL4_ObjectTypeCount + 5),
     CDL_RTReply       = IF_CONFIG_KERNEL_MCS(seL4_ReplyObject, seL4_ObjectTypeCount + 6),
-#if defined(CONFIG_ARCH_X86)
+
+#ifdef CONFIG_ARCH_X86
     CDL_IOAPICInterrupt = seL4_ObjectTypeCount + 7,
-    CDL_MSIInterrupt = seL4_ObjectTypeCount + 8,
+    CDL_MSIInterrupt    = seL4_ObjectTypeCount + 8,
 #endif
-#if defined(CONFIG_ARCH_ARM)
+
+#ifdef CONFIG_ARCH_ARM
     CDL_ARMIODevice   = seL4_ObjectTypeCount + 9,
-    CDL_ARMInterrupt = seL4_ObjectTypeCount + 11,
-    CDL_SID = seL4_ObjectTypeCount + 12,
-    CDL_CB = seL4_ObjectTypeCount + 13,
-#ifdef CONFIG_ALLOW_SMC_CALLS
-    CDL_SMC = seL4_ObjectTypeCount + 14,
 #endif
-#endif /* CONFIG_ARCH_ARM */
+
 #ifdef CONFIG_ARCH_RISCV
-    CDL_Frame = seL4_RISCV_4K_Page,
-    CDL_PT = seL4_RISCV_PageTableObject,
-    /* We use this hack to distiguish a PageTableObject that is used as a root vspace
-     * as parts of the loader assume that the root vspace object types are unique
+    /* Parts of the loader require a designated root vspace object type, which
+     * practically is just another PageTableObject.
      */
     CDL_PT_ROOT_ALIAS = seL4_ObjectTypeCount + 10,
 #endif
+
+#ifdef CONFIG_ARCH_ARM
+    CDL_ARMInterrupt  = seL4_ObjectTypeCount + 11,
+#endif
+
+    CDL_SID           = seL4_ObjectTypeCount + 12,
+    CDL_CB            = seL4_ObjectTypeCount + 13,
+
+#ifdef CONFIG_ALLOW_SMC_CALLS
+    CDL_SMC           = seL4_ObjectTypeCount + 14,
+#endif
+
 } CDL_ObjectType;
 
-#ifdef CONFIG_ARCH_AARCH64
+#if defined(CONFIG_ARCH_ARM)
+
+#if defined(CONFIG_ARCH_AARCH32)
+#define CDL_TOP_LEVEL_PD         CDL_PD
+#define CDL_PT_NUM_LEVELS        2
+
+#elif defined(CONFIG_ARCH_AARCH64)
 #if defined(CONFIG_ARM_HYPERVISOR_SUPPORT) && defined(CONFIG_ARM_PA_SIZE_BITS_40)
 #define CDL_TOP_LEVEL_PD         CDL_PUD
 #define CDL_PT_NUM_LEVELS        3
@@ -242,7 +267,18 @@ typedef enum {
 #define CDL_PT_LEVEL_2_IndexBits seL4_PageDirIndexBits
 #define CDL_PT_LEVEL_3_MAP       seL4_ARM_PageTable_Map
 #define CDL_PT_LEVEL_3_IndexBits seL4_PageTableIndexBits
-#elif CONFIG_ARCH_X86_64
+
+#else
+#error "unknown ARM Architecture"
+#endif
+
+#elif defined(CONFIG_ARCH_X86)
+
+#if defined(CONFIG_ARCH_IA32)
+#define CDL_TOP_LEVEL_PD         CDL_PD
+#define CDL_PT_NUM_LEVELS        2
+
+#elif defined(CONFIG_ARCH_X86_64)
 #define CDL_TOP_LEVEL_PD         CDL_PML4
 #define CDL_PT_LEVEL_1_MAP       seL4_X86_PDPT_Map
 #define CDL_PT_LEVEL_1_IndexBits seL4_PDPTIndexBits
@@ -251,7 +287,12 @@ typedef enum {
 #define CDL_PT_LEVEL_3_MAP       seL4_X86_PageTable_Map
 #define CDL_PT_LEVEL_3_IndexBits seL4_PageTableIndexBits
 #define CDL_PT_NUM_LEVELS        4
-#elif CONFIG_ARCH_RISCV
+
+#else
+#error "unknown x86 Architecture"
+#endif
+
+#elif defined(CONFIG_ARCH_RISCV)
 #define CDL_TOP_LEVEL_PD         CDL_PT_ROOT_ALIAS
 #define CDL_PT_LEVEL_0_MAP       seL4_RISCV_PageTable_Map
 #define CDL_PT_LEVEL_0_IndexBits seL4_PageTableIndexBits
@@ -262,9 +303,9 @@ typedef enum {
 #define CDL_PT_LEVEL_3_MAP       seL4_RISCV_PageTable_Map
 #define CDL_PT_LEVEL_3_IndexBits seL4_PageTableIndexBits
 #define CDL_PT_NUM_LEVELS        CONFIG_PT_LEVELS
+
 #else
-#define CDL_TOP_LEVEL_PD         CDL_PD
-#define CDL_PT_NUM_LEVELS        2
+#error "unknown Architecture"
 #endif
 
 typedef struct {
