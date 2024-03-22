@@ -18,10 +18,19 @@ function(BuildCapDLApplication)
     if("${CAPDL_BUILD_APP_OUTPUT}" STREQUAL "")
         message(FATAL_ERROR "OUTPUT is required argument to BuildCapDLApplication")
     endif()
+
+    get_filename_component(capdlapp_name "${CAPDL_BUILD_APP_OUTPUT}" NAME)
+    get_filename_component(capdlapp_dir "${CAPDL_BUILD_APP_OUTPUT}" DIRECTORY)
+    if(NOT capdlapp_dir)
+        set(capdlapp_dir "${CMAKE_CURRENT_BINARY_DIR}")
+    endif()
+
+
     # Build a CPIO archive out of the provided ELF files
+    set(CPIO_ARCHIVE "${capdlapp_dir}/archive.o")
     include(cpio)
     MakeCPIO(
-        ${CAPDL_BUILD_APP_OUTPUT}_archive.o
+        "${CPIO_ARCHIVE}"
         "${CAPDL_BUILD_APP_ELF}"
         CPIO_SYMBOL
         _capdl_archive
@@ -55,25 +64,32 @@ function(BuildCapDLApplication)
 
     # Build the application
     add_executable(
-        "${CAPDL_BUILD_APP_OUTPUT}"
+        "${capdlapp_name}"
         EXCLUDE_FROM_ALL
         $<TARGET_PROPERTY:capdl_app_properties,C_FILES>
         ${CAPDL_LOADER_APP_C_FILES}
-        ${CAPDL_BUILD_APP_OUTPUT}_archive.o
+        ${CPIO_ARCHIVE}
         ${CAPDL_BUILD_APP_C_SPEC}
     )
 
+    set_target_properties(
+        "${capdlapp_name}"
+        PROPERTIES
+            CMAKE_RUNTIME_OUTPUT_DIRECTORY
+            "${capdlapp_dir}"
+    )
+
     if(DEFINED platform_yaml)
-        add_dependencies("${CAPDL_BUILD_APP_OUTPUT}" mem_regions)
+        add_dependencies("${capdlapp_name}" mem_regions)
     endif()
 
-    add_dependencies("${CAPDL_BUILD_APP_OUTPUT}" ${CAPDL_BUILD_APP_DEPENDS})
+    add_dependencies("${capdlapp_name}" ${CAPDL_BUILD_APP_DEPENDS})
     target_include_directories(
-        "${CAPDL_BUILD_APP_OUTPUT}"
+        "${capdlapp_name}"
         PRIVATE $<TARGET_PROPERTY:capdl_app_properties,INCLUDE_DIRS>
     )
     target_link_libraries(
-        "${CAPDL_BUILD_APP_OUTPUT}"
+        "${capdlapp_name}"
         sel4runtime
         sel4
         cpio
@@ -83,7 +99,7 @@ function(BuildCapDLApplication)
         sel4_autoconf
     )
     if(KernelDebugBuild)
-        target_link_libraries("${CAPDL_BUILD_APP_OUTPUT}" sel4muslcsys)
+        target_link_libraries("${capdlapp_name}" sel4muslcsys)
     endif()
 endfunction(BuildCapDLApplication)
 
